@@ -50,6 +50,12 @@ public sealed class Board : MonoBehaviour
         Pop();
     }
 
+    private void Update() {
+        if (!CheckMove()) {
+            Shuffle();
+        }
+    }
+
     public async void Select(Tile tile)
     {
         if (isSwapping || isMatching) return;
@@ -66,9 +72,6 @@ public sealed class Board : MonoBehaviour
             Pop();
         } else {
             await Swap(_selection[0], _selection[1]);
-        }
-        if (!CheckMove()) {
-            Shuffle();
         }
         _selection.Clear();
         for (var y = 0; y < Height; y++)
@@ -147,29 +150,31 @@ public sealed class Board : MonoBehaviour
 
     private async void Pop() {
         isMatching = true;
-        for (var p = 0; p < 14; p++) {
-            for (var y = 0; y < Height; y++)
+        for (var y = 0; y < Height; y++)
+        {
+            for (var x = 0; x < Width; x++)
             {
-                for (var x = 0; x < Width; x++)
-                {
-                    var tile = Tiles[x, y];
-                    var conTiles = Tiles[x, y].GetConnectedTiles();
-                    if (conTiles.Count() >= 3) {
-                        var animsequence = DOTween.Sequence();
+                var tile = Tiles[x, y];
+                var conTiles = Tiles[x, y].GetConnectedTiles();
+                if (conTiles.Count() >= 3) {
+                    var animsequence = DOTween.Sequence();
 
-                        foreach (Tile t in conTiles) {
-                            animsequence.Join(t.icon.transform.DOScale(Vector3.zero, 0.25f));
-                        }
-                        await animsequence.Play().AsyncWaitForCompletion();
-
-                        var appearsequence = DOTween.Sequence();
-
-                        foreach (Tile t in conTiles) {
-                            t.Item = ItemDatabase.Items[UnityEngine.Random.Range(0, ItemDatabase.Items.Length)];
-                            appearsequence.Join(t.icon.transform.DOScale(Vector3.one, 0.25f));
-                        }
-                        await appearsequence.Play().AsyncWaitForCompletion();
+                    foreach (Tile t in conTiles) {
+                        animsequence.Join(t.icon.transform.DOScale(Vector3.zero, 0.25f));
                     }
+                    await animsequence.Play().AsyncWaitForCompletion();
+                    Score.Instance.score += tile.Item.val * conTiles.Count();
+
+                    var appearsequence = DOTween.Sequence();
+
+                    foreach (Tile t in conTiles) {
+                        t.Item = ItemDatabase.Items[UnityEngine.Random.Range(0, ItemDatabase.Items.Length)];
+                        appearsequence.Join(t.icon.transform.DOScale(Vector3.one, 0.25f));
+                    }
+                    await appearsequence.Play().AsyncWaitForCompletion();
+                    x = 0;
+                    y = 0;
+                    
                 }
             }
         }
