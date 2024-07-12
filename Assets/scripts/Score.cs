@@ -15,7 +15,7 @@ public sealed class Score : MonoBehaviour
             if (_score == value) return;
             _score = value;
 
-            scoreText.SetText($"Score: {_score}");
+            scoreText.SetText($"Счёт: {_score}");
         }
     }
 

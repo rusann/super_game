@@ -6,7 +6,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using DG.Tweening;
 using Unity.Mathematics;
-using UnityEditor.Tilemaps;
 using UnityEngine;
 
 public sealed class Board : MonoBehaviour
